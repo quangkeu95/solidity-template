@@ -2,6 +2,8 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
 
 import "./tasks/accounts";
 import "./tasks/clean";
@@ -9,8 +11,8 @@ import "./tasks/clean";
 import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/config";
-import { NetworkUserConfig } from "hardhat/types";
+import { NetworkUserConfig, HardhatUserConfig } from "hardhat/types";
+import { accounts } from "./scripts/generate_wallet";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
@@ -22,26 +24,23 @@ const chainIds = {
   mainnet: 1,
   rinkeby: 4,
   ropsten: 3,
+  polygonMainnet: 137,
+  polygonTestnet: 80001,
+  bscMainnet: 56,
+  bscTestnet: 97,
 };
+const MNEMONIC = process.env.MNEMONIC || "";
+const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || "";
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
-// Ensure that we have all the environment variables we need.
-const mnemonic = process.env.MNEMONIC;
-if (!mnemonic) {
-  throw new Error("Please set your MNEMONIC in a .env file");
-}
-
-const infuraApiKey = process.env.INFURA_API_KEY;
-if (!infuraApiKey) {
-  throw new Error("Please set your INFURA_API_KEY in a .env file");
-}
-
-function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
-  const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+function createConfig(network: keyof typeof chainIds): NetworkUserConfig {
+  const url: string = "https://" + network + ".infura.io/v3/" + INFURA_API_KEY;
   return {
     accounts: {
       count: 10,
       initialIndex: 0,
-      mnemonic,
+      mnemonic: MNEMONIC,
       path: "m/44'/60'/0'/0",
     },
     chainId: chainIds[network],
@@ -57,17 +56,23 @@ const config: HardhatUserConfig = {
     excludeContracts: [],
     src: "./contracts",
   },
+  namedAccounts: {
+    deployer: 0,
+  },
   networks: {
     hardhat: {
-      accounts: {
-        mnemonic,
-      },
+      accounts: accounts,
       chainId: chainIds.hardhat,
     },
-    goerli: createTestnetConfig("goerli"),
-    kovan: createTestnetConfig("kovan"),
-    rinkeby: createTestnetConfig("rinkeby"),
-    ropsten: createTestnetConfig("ropsten"),
+    goerli: createConfig("goerli"),
+    kovan: createConfig("kovan"),
+    rinkeby: createConfig("rinkeby"),
+    ropsten: createConfig("ropsten"),
+    mainnet: createConfig("mainnet"),
+    polygonMainnet: createConfig("polygonMainnet"),
+    polygonTestnet: createConfig("polygonTestnet"),
+    bscMainnet: createConfig("bscMainnet"),
+    bscTestnet: createConfig("bscTestnet"),
   },
   paths: {
     artifacts: "./artifacts",

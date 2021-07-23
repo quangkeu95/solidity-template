@@ -15,12 +15,15 @@
   "exclude": ["artifacts", "node_modules"],
   "files": ["./hardhat.config.ts"],
   "include": [
+    "./hardhat.config.ts",
     "artifacts/**/*",
     "artifacts/**/*.json",
     "scripts/**/*",
     "tasks/**/*",
     "test/**/*",
     "typechain/**/*",
-    "types/**/*"
+    "types/**/*",
+    "./deploy",
+    "./test"
   ]
 }
