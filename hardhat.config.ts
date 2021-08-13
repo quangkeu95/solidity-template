@@ -13,28 +13,16 @@ import { resolve } from "path";
 import { config as dotenvConfig } from "dotenv";
 import { NetworkUserConfig, HardhatUserConfig } from "hardhat/types";
 import { accounts } from "./scripts/generate_wallet";
+import { ChainID, ChainName } from "./scripts/config";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
-const chainIds = {
-  ganache: 1337,
-  goerli: 5,
-  hardhat: 31337,
-  kovan: 42,
-  mainnet: 1,
-  rinkeby: 4,
-  ropsten: 3,
-  polygonMainnet: 137,
-  polygonTestnet: 80001,
-  bscMainnet: 56,
-  bscTestnet: 97,
-};
 const MNEMONIC = process.env.MNEMONIC || "";
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
-function createConfig(network: keyof typeof chainIds): NetworkUserConfig {
+function createConfig(network: keyof typeof ChainID): NetworkUserConfig {
   const url: string = "https://" + network + ".infura.io/v3/" + INFURA_API_KEY;
   return {
     accounts: {
@@ -43,13 +31,13 @@ function createConfig(network: keyof typeof chainIds): NetworkUserConfig {
       mnemonic: MNEMONIC,
       path: "m/44'/60'/0'/0",
     },
-    chainId: chainIds[network],
+    chainId: ChainID[network],
     url,
   };
 }
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: ChainName.Hardhat,
   gasReporter: {
     currency: "USD",
     enabled: process.env.REPORT_GAS ? true : false,
@@ -62,7 +50,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       accounts: accounts,
-      chainId: chainIds.hardhat,
+      chainId: ChainID[ChainName.Hardhat],
     },
     goerli: createConfig("goerli"),
     kovan: createConfig("kovan"),

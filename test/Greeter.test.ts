@@ -1,6 +1,6 @@
 import { expect } from "./chai-setup";
 
-import { ethers, deployments, getNamedAccounts } from "hardhat";
+import { ethers, deployments } from "hardhat";
 import { IInitialSetup, initialSetup } from "./test-setup";
 import { Greeter } from "../typechain";
 

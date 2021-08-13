@@ -1,14 +1,10 @@
 import { expect } from "./chai-setup";
 import { Contract } from "ethers";
-import { NetworkConfig, IConfig, BscConfig } from "../scripts/config";
+import { BscConfig, ChainConfig, ChainName, GetChainConfig } from "../scripts/config";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
-import { deployments, ethers, network, getNamedAccounts, getUnnamedAccounts } from "hardhat";
+import { ethers, network, getNamedAccounts, getUnnamedAccounts } from "hardhat";
 import { BigNumber } from "ethers";
 import { WBNB_ABI, PANCAKE_ROUTER_ABI } from "../scripts/abi";
-
-enum NetworkName {
-  BscMainnet = "bscMainnet",
-}
 
 interface ContractMap {
   [contractName: string]: Contract;
@@ -17,12 +13,12 @@ interface ContractMap {
 export interface IInitialSetup {
   deployer: SignerWithAddress;
   users: SignerWithAddress[];
-  network: IConfig;
+  network: ChainConfig;
   contracts: ContractMap;
 }
 
 export const initialSetup = async (): Promise<IInitialSetup> => {
-  const networkConfig = NetworkConfig[network.name];
+  const networkConfig = GetChainConfig(network.name);
 
   const { deployer } = await getNamedAccounts();
   const deployerSigner = await ethers.getSigner(deployer);
@@ -42,8 +38,8 @@ export const initialSetup = async (): Promise<IInitialSetup> => {
 };
 
 const setupContract = async (deployerSigner: SignerWithAddress): Promise<ContractMap> => {
-  if (network.name == NetworkName.BscMainnet) {
-    const networkConfig = NetworkConfig[network.name] as BscConfig;
+  if (network.name == ChainName.BscMainnet) {
+    const networkConfig = GetChainConfig(network.name) as BscConfig;
     const wbnbContract = new ethers.Contract(networkConfig.wbnbAddress, WBNB_ABI, ethers.provider);
     const pancakeRouter = new ethers.Contract(networkConfig.pancakeRouterAddress, PANCAKE_ROUTER_ABI, ethers.provider);
 
